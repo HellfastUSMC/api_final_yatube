@@ -38,6 +38,16 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
 
     def validate(self, data):
+        instance = Follow.objects.filter(
+            user=self.context['request'].user,
+            following=data['following']
+        ).exists()
+
+        if instance:
+            raise serializers.ValidationError(
+                "You already subscribed!"
+            )
+
         if self.context['request'].user == data['following']:
             raise serializers.ValidationError(
                 "You can't subscribe to yourself!"
