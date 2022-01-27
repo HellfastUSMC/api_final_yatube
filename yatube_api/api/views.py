@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
@@ -35,7 +35,6 @@ class GroupViewSet(ReadOnlyModelViewSet):
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsOwnerOrReadOnly, )
-    queryset = Comment.objects.all()
 
     def get_queryset(self):
         get_object_or_404(Post, pk=self.kwargs['post_id'])
@@ -47,7 +46,6 @@ class CommentViewSet(ModelViewSet):
             author=self.request.user,
             post=get_object_or_404(Post, pk=self.kwargs['post_id'])
         )
-        return super().perform_create(serializer)
 
 
 class FollowViewSet(ModelViewSet):
@@ -58,8 +56,6 @@ class FollowViewSet(ModelViewSet):
     search_fields = ('following__username',)
 
     def perform_create(self, serializer):
-        if self.request.data['following'] == self.request.user.username:
-            raise ValidationError("You can't subscribe to yourself!")
         try:
             following = get_object_or_404(
                 User,
@@ -70,5 +66,5 @@ class FollowViewSet(ModelViewSet):
             raise ValidationError('You already subscribed!')
 
     def get_queryset(self):
-        queryset = Follow.objects.filter(user=self.request.user)
+        queryset = self.request.user.subscribitions
         return queryset

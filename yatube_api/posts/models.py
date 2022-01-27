@@ -41,9 +41,9 @@ class Comment(models.Model):
 
 class Follow(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subscribers')
-    following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subscribitions')
+    following = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subscribers')
 
     class Meta:
         constraints = [

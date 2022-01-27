@@ -37,6 +37,13 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Follow
 
+    def validate(self, data):
+        if self.context['request'].user == data['following']:
+            raise serializers.ValidationError(
+                "You can't subscribe to yourself!"
+            )
+        return data
+
 
 class GroupSerializer(serializers.ModelSerializer):
 
